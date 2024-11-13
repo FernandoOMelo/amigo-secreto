@@ -1,6 +1,8 @@
 let edtNome         = document.getElementById('nome-amigo');
 let edtIncluidos    = document.getElementById('lista-amigos');
+let lbSorteio       = document.getElementById('lista-sorteio');
 let Nomes = [];
+let Pares = {};
 
 function adicionar(){
     if (edtNome.value == ''){
@@ -8,47 +10,77 @@ function adicionar(){
         return;
     }
 
-    Nomes.push(' ' + edtNome.value.trim());
+    if (Nomes.includes(edtNome.value)){
+        alert('Nome já incluído na lista. Por favor digite outro ou adicione o sobrenome.');
+        return;
+    }
+
+    Nomes.push(edtNome.value.trim());
     edtIncluidos.textContent = Nomes;
     edtNome.value = '';
 }
 
 function sortear(){
-    let nomesSorteados = [];
-    let Sorteios = 0;
-    let Par = [];
-    let Pares = {};
     if (Nomes.length < 3){
         alert('Inclua no mínimo 3 nomes para sortear');
         return;
     }
 
-    nomesSorteados = embaralhaNomes(Nomes);
-    while (Sorteios < nomesSorteados.length) {
-        for(let i = 0; i < 2; i++){
-            if (Par.includes(nomesSorteados[Sorteios])){
-                i--;
-                continue;
+    Nomes = embaralhaNomes(Nomes);
+
+    sorteiaPares();
+    imprimeSorteio(Pares);
+}
+
+function imprimeSorteio(Pares) {
+    let textoSorteado = '';
+    let textoPar = '';
+
+    for (let i = 0; i <= Object.keys(Pares).length; i++) {
+        for (const j in Pares[i]) {
+            let Nome = Pares[i][j];
+            if (j < 1) {
+                textoPar = `${Nome} ---> `;
             }
-            else{
-                Par.push(nomesSorteados[i]);
-            }  
+            else {
+                textoPar = textoPar + `${Nome}`;
+            }
         }
-        Pares[`Sorteio${Sorteios}`] = Par;
-        Sorteios++;     
+        textoSorteado = (textoSorteado + `${textoPar} <br>`);
+        textoPar = '';
     }
-    alert(nomesSorteados);
-    alert(Pares);
+    lbSorteio.innerHTML = textoSorteado;
+}
+
+function sorteiaPares() {
+    let Sorteios = 0;
+    let Par = [];
+    while (Sorteios < Nomes.length) {
+        for (let i = Sorteios; i < Sorteios + 2; i++) {
+            if (i >= Nomes.length) {
+                i = 0;
+                Par.push(Nomes[i]);
+                break;
+            }
+            Par.push(Nomes[i]);
+        }
+        Pares[`${Sorteios}`] = Par;
+        Par = [];
+        Sorteios++;
+    }
 }
 
 function reiniciar(){
-
+    lbSorteio.innerText = '';
+    edtIncluidos.textContent = '';
+    Nomes = [];
+    Pares = {};
 }
 
-function embaralhaNomes(Nomes){
+function embaralhaNomes(Arr){
     let Sorteio = [];
-    for(let i = 0; i < Nomes.length; i++){
-        let Sorteado = Nomes[Math.floor(Math.random() * Nomes.length)];
+    for(let i = 0; i < Arr.length; i++){
+        let Sorteado = Arr[Math.floor(Math.random() * Arr.length)];
         if (Sorteio.includes(Sorteado)){
             i--;
             continue;
